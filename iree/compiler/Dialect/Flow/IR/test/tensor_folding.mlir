@@ -16,15 +16,6 @@ func @reshapeNoOpScalar(%arg0 : tensor<f32>) -> tensor<f32> {
   return %0 : tensor<f32>
 }
 
-// CHECK-LABEL: @reshapeTransitive
-func @reshapeTransitive(%arg0 : tensor<4x4xf32>) -> tensor<8x2xf32> {
-  %0 = flow.tensor.reshape %arg0 : tensor<4x4xf32> -> tensor<2x8xf32>
-  // CHECK-NEXT: %[[T:.+]] = flow.tensor.reshape %arg0 : tensor<4x4xf32> -> tensor<8x2xf32>
-  %1 = flow.tensor.reshape %0 : tensor<2x8xf32> -> tensor<8x2xf32>
-  // CHECK-NEXT: return %[[T]] : tensor<8x2xf32>
-  return %1 : tensor<8x2xf32>
-}
-
 // -----
 
 // CHECK-LABEL: @loadConst

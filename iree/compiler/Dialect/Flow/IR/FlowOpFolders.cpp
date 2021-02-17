@@ -44,38 +44,9 @@ namespace Flow {
 // Streams
 //===----------------------------------------------------------------------===//
 
-namespace {
-
-// Optimizes stream fragment arguments by:
-//   - Removing any that are not used in the body
-//   - Deduping arguments that refer to the same Value
-struct DceStreamFragment : public OpRewritePattern<ExStreamFragmentOp> {
-  using OpRewritePattern::OpRewritePattern;
-
-  LogicalResult matchAndRewrite(ExStreamFragmentOp op,
-                                PatternRewriter &rewriter) const override {
-    if (op.body().empty()) return failure();
-    ClosureOpDce dce(op, op.body().front(), /*variadicOffset=*/0);
-    if (!dce.needsOptimization()) return failure();
-
-    bool newOperation = dce.needsNewOperation();
-    if (!newOperation) {
-      rewriter.startRootUpdate(op);
-      dce.optimize(rewriter);
-      rewriter.finalizeRootUpdate(op);
-    } else {
-      dce.optimize(rewriter, /*eraseOriginal=*/false);
-      rewriter.eraseOp(op);
-    }
-    return success();
-  }
-};
-
-}  // namespace
-
 void ExStreamFragmentOp::getCanonicalizationPatterns(
     OwningRewritePatternList &results, MLIRContext *context) {
-  results.insert<DceStreamFragment>(context);
+  results.insert<ClosureOptimizationPattern<ExStreamFragmentOp>>(context);
 }
 
 //===----------------------------------------------------------------------===//
@@ -223,70 +194,14 @@ void VariableStoreIndirectOp::getCanonicalizationPatterns(
 // Dispatch ops
 //===----------------------------------------------------------------------===//
 
-namespace {
-
-struct DceDispatchRegion : public OpRewritePattern<DispatchRegionOp> {
-  using OpRewritePattern::OpRewritePattern;
-
-  LogicalResult matchAndRewrite(DispatchRegionOp op,
-                                PatternRewriter &rewriter) const override {
-    if (op.body().empty()) return failure();
-    ClosureOpDce dce(op, op.body().front(), /*variadicOffset=*/1);
-    if (!dce.needsOptimization()) return failure();
-
-    bool newOperation = dce.needsNewOperation();
-    if (!newOperation) {
-      rewriter.startRootUpdate(op);
-      dce.optimize(rewriter);
-      rewriter.finalizeRootUpdate(op);
-    } else {
-      dce.optimize(rewriter, /*eraseOriginal=*/false);
-      rewriter.eraseOp(op);
-    }
-    return success();
-  }
-};
-
-}  // namespace
-
 void DispatchRegionOp::getCanonicalizationPatterns(
     OwningRewritePatternList &results, MLIRContext *context) {
-  results.insert<DceDispatchRegion>(context);
+  results.insert<ClosureOptimizationPattern<DispatchRegionOp>>(context);
 }
-
-namespace {
-
-struct DceDispatchWorkgroups : public OpRewritePattern<DispatchWorkgroupsOp> {
-  using OpRewritePattern::OpRewritePattern;
-
-  LogicalResult matchAndRewrite(DispatchWorkgroupsOp op,
-                                PatternRewriter &rewriter) const override {
-    if (op.body().empty()) return failure();
-    ClosureOpDce dce(op, op.body().front(),
-                     /*variadicOffset=*/op.workgroup_count().size());
-    if (!dce.needsOptimization()) return failure();
-
-    bool newOperation = dce.needsNewOperation();
-    if (!newOperation) {
-      rewriter.startRootUpdate(op);
-      dce.optimize(rewriter);
-      rewriter.finalizeRootUpdate(op);
-    } else {
-      dce.optimize(rewriter, /*eraseOriginal=*/false);
-      rewriter.eraseOp(op);
-    }
-    return success();
-  }
-};
-
-}  // namespace
 
 void DispatchWorkgroupsOp::getCanonicalizationPatterns(
     OwningRewritePatternList &results, MLIRContext *context) {
-  // TODO(benvanik): add DCE support; it's tricky here because the ClosureOpDce
-  // assumes 1:1 operands/results between the outer op and inner region, but we
-  // don't do that there.
-  // results.insert<DceDispatchWorkgroups>(context);
+  results.insert<ClosureOptimizationPattern<DispatchWorkgroupsOp>>(context);
 }
 
 //===----------------------------------------------------------------------===//
@@ -444,14 +359,6 @@ OpFoldResult TensorReshapeOp::fold(ArrayRef<Attribute> operands) {
     // No-op.
     return source();
   }
-
-  // Skip intermediate reshapes.
-  if (auto definingOp =
-          dyn_cast_or_null<TensorReshapeOp>(source().getDefiningOp())) {
-    setOperand(definingOp.getOperand());
-    return result();
-  }
-
   return {};
 }
 
@@ -606,12 +513,15 @@ static ElementsAttr tensorUpdate(ElementsAttr update, ElementsAttr target,
 }
 
 OpFoldResult TensorUpdateOp::fold(ArrayRef<Attribute> operands) {
-  auto indices = operands.drop_front(2);
+  auto targetIndex = getODSOperandIndexAndLength(0).first;
+  auto startIndices = getODSOperandIndexAndLength(2);
+  auto updateIndex = getODSOperandIndexAndLength(3).first;
+  auto indices = operands.slice(startIndices.first, startIndices.second);
   bool allIndicesConstant = llvm::count(indices, nullptr) == 0;
-  if (operands[0] && operands[1] && allIndicesConstant) {
+  if (operands[updateIndex] && operands[targetIndex] && allIndicesConstant) {
     // Fully constant arguments so we can perform the update here.
-    return tensorUpdate(operands[0].cast<ElementsAttr>(),
-                        operands[1].cast<ElementsAttr>(), indices);
+    return tensorUpdate(operands[updateIndex].cast<ElementsAttr>(),
+                        operands[targetIndex].cast<ElementsAttr>(), indices);
   } else {
     // Replace the entire tensor when the sizes match.
     auto updateType = update().getType().cast<ShapedType>();
