@@ -356,7 +356,7 @@ static SmallVector<int64_t, 4> extractFromI64ArrayAttr(Attribute attr) {
 }
 
 LogicalResult convertInterfaceLoadTensorOp(
-    OpBuilder &b, IREE::Flow::DispatchInputLoadOp loadOp,
+    OpBuilder &b, IREE::Flow::DispatchTensorLoadOp loadOp,
     BlockAndValueMapping &bvm) {
   OpBuilder::InsertionGuard g(b);
   b.setInsertionPoint(loadOp);
@@ -398,7 +398,7 @@ static Operation *getInsertionPointForReplacementStoreOp(
 /// LinalgOp, create the subview operation that can be used by the op itself to
 /// store the result into directly. This avoids an extra allocation + copies.
 LogicalResult preProcessConvertInterfaceStoreTensorOp(
-    OpBuilder &b, IREE::Flow::DispatchOutputStoreOp storeOp,
+    OpBuilder &b, IREE::Flow::DispatchTensorStoreOp storeOp,
     BlockAndValueMapping &bvm) {
   // Find the insertion point for the subview.
   SmallVector<Value, 4> operandsOfSubviewOp;
@@ -440,7 +440,7 @@ LogicalResult preProcessLinalgOps(OpBuilder &b, linalg::LinalgOp op,
 }
 
 LogicalResult convertInterfaceStoreTensorOp(
-    OpBuilder &b, IREE::Flow::DispatchOutputStoreOp storeOp,
+    OpBuilder &b, IREE::Flow::DispatchTensorStoreOp storeOp,
     BlockAndValueMapping &bvm) {
   OpBuilder::InsertionGuard g(b);
   b.setInsertionPoint(storeOp);
@@ -519,7 +519,7 @@ void LinalgBufferizePass::runOnFunction() {
     transferShapeOpsToMemref(b, op.getResult(), baseBuffer.getResult(), bvm);
   });
   if (funcOp
-          .walk([&](IREE::Flow::DispatchOutputStoreOp op) -> WalkResult {
+          .walk([&](IREE::Flow::DispatchTensorStoreOp op) -> WalkResult {
             return preProcessConvertInterfaceStoreTensorOp(b, op, bvm);
           })
           .wasInterrupted()) {
@@ -545,12 +545,12 @@ void LinalgBufferizePass::runOnFunction() {
 
   auto conversionDispatch = [&](Operation *op) -> WalkResult {
     return TypeSwitch<Operation *, LogicalResult>(op)
-        .Case<IREE::Flow::DispatchInputLoadOp>(
-            [&](IREE::Flow::DispatchInputLoadOp loadOp) {
+        .Case<IREE::Flow::DispatchTensorLoadOp>(
+            [&](IREE::Flow::DispatchTensorLoadOp loadOp) {
               return convertInterfaceLoadTensorOp(b, loadOp, bvm);
             })
-        .Case<IREE::Flow::DispatchOutputStoreOp>(
-            [&](IREE::Flow::DispatchOutputStoreOp storeOp) {
+        .Case<IREE::Flow::DispatchTensorStoreOp>(
+            [&](IREE::Flow::DispatchTensorStoreOp storeOp) {
               return convertInterfaceStoreTensorOp(b, storeOp, bvm);
             })
         .Case<linalg::LinalgOp>([&](linalg::LinalgOp linalgOp) {

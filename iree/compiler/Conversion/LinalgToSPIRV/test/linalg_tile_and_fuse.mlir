@@ -10,8 +10,8 @@ hal.executable @conv_no_padding attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @conv_no_padding attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<3x4x6x14xf32>, !flow.dispatch.input<2x16x16x6xf32>,
-        !flow.dispatch.output<2x13x11x14xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:3x4x6x14xf32>, !flow.dispatch.tensor<readonly:2x16x16x6xf32>,
+        !flow.dispatch.tensor<writeonly:2x13x11x14xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -75,8 +75,8 @@ hal.executable @matmul attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @matmul attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<25x50xf32>, !flow.dispatch.input<50x75xf32>,
-        !flow.dispatch.output<25x75xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:25x50xf32>, !flow.dispatch.tensor<readonly:50x75xf32>,
+        !flow.dispatch.tensor<writeonly:25x75xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -142,8 +142,8 @@ hal.executable @pooling_sum_no_padding attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @pooling_sum_no_padding attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<24x28xf32>, !flow.dispatch.input<3x5xf32>,
-        !flow.dispatch.output<22x24xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:24x28xf32>, !flow.dispatch.tensor<readonly:3x5xf32>,
+        !flow.dispatch.tensor<writeonly:22x24xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -202,8 +202,8 @@ hal.executable @pooling_max_4D attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @pooling_max_4D attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<2x16x16x6xf32>, !flow.dispatch.input<1x3x4x2xf32>,
-        !flow.dispatch.output<2x14x13x5xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:2x16x16x6xf32>, !flow.dispatch.tensor<readonly:1x3x4x2xf32>,
+        !flow.dispatch.tensor<writeonly:2x14x13x5xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -262,8 +262,8 @@ hal.executable @matmul_fusion attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @matmul_fusion attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<25x50xf32>, !flow.dispatch.input<50x75xf32>,
-        !flow.dispatch.output<25x75xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:25x50xf32>, !flow.dispatch.tensor<readonly:50x75xf32>,
+        !flow.dispatch.tensor<writeonly:25x75xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -331,8 +331,8 @@ hal.executable @conv_no_padding_fusion attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @conv_no_padding_fusion attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<3x4x6x14xf32>, !flow.dispatch.input<2x16x16x6xf32>,
-        !flow.dispatch.output<2x13x11x14xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:3x4x6x14xf32>, !flow.dispatch.tensor<readonly:2x16x16x6xf32>,
+        !flow.dispatch.tensor<writeonly:2x13x11x14xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -399,8 +399,8 @@ hal.executable @three_op_fusion attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @three_op_fusion attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<25x50xf32>, !flow.dispatch.input<50x75xf32>,
-        !flow.dispatch.output<25x75xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:25x50xf32>, !flow.dispatch.tensor<readonly:50x75xf32>,
+        !flow.dispatch.tensor<writeonly:25x75xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -504,8 +504,8 @@ hal.executable @conv_tiled_and_vectorized attributes {sym_visibility = "private"
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @conv_tiled_and_vectorized attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<1x225x225x16xf32>, !flow.dispatch.input<3x3x16x32xf32>,
-        !flow.dispatch.output<1x112x112x32xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:1x225x225x16xf32>, !flow.dispatch.tensor<readonly:3x3x16x32xf32>,
+        !flow.dispatch.tensor<writeonly:1x112x112x32xf32>) -> ()}
     module attributes {
       spv.target_env = #spv.target_env<#spv.vce<v1.3, [Shader, Float16, Int16, Int8, StorageBuffer16BitAccess, StorageUniform16, StoragePushConstant16, StorageBuffer8BitAccess, UniformAndStorageBuffer8BitAccess, StoragePushConstant8, GroupNonUniform, VariablePointers, VariablePointersStorageBuffer], [SPV_KHR_16bit_storage, SPV_KHR_8bit_storage, SPV_KHR_storage_buffer_storage_class, SPV_KHR_variable_pointers]>, ARM:IntegratedGPU, {max_compute_shared_memory_size = 32768 : i32, max_compute_workgroup_invocations = 512 : i32, max_compute_workgroup_size = dense<512> : vector<3xi32>, subgroup_size = 16 : i32}>
     }  {
@@ -563,8 +563,8 @@ hal.executable @conv_tiled_and_vectorized attributes {sym_visibility = "private"
   hal.executable.target @vulkan, filter="dylib*" {
     hal.executable.entry_point @depthwise_conv_tiled_and_vectorized attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<1x113x113x96xf32>, !flow.dispatch.input<3x3x96xf32>,
-        !flow.dispatch.output<1x56x56x96xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:1x113x113x96xf32>, !flow.dispatch.tensor<readonly:3x3x96xf32>,
+        !flow.dispatch.tensor<writeonly:1x56x56x96xf32>) -> ()}
     module attributes {
       spv.target_env = #spv.target_env<#spv.vce<v1.3, [Shader, Float16, Int16, Int8, StorageBuffer16BitAccess, StorageUniform16, StoragePushConstant16, StorageBuffer8BitAccess, UniformAndStorageBuffer8BitAccess, StoragePushConstant8, GroupNonUniform, VariablePointers, VariablePointersStorageBuffer], [SPV_KHR_16bit_storage, SPV_KHR_8bit_storage, SPV_KHR_storage_buffer_storage_class, SPV_KHR_variable_pointers]>, ARM:IntegratedGPU, {max_compute_shared_memory_size = 32768 : i32, max_compute_workgroup_invocations = 512 : i32, max_compute_workgroup_size = dense<512> : vector<3xi32>, subgroup_size = 16 : i32}>
     }  {

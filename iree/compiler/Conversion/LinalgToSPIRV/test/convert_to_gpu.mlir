@@ -11,8 +11,8 @@
 //   hal.executable.target @vulkan, filter="vulkan*" {
 //     hal.executable.entry_point @parallel_4D attributes {
 //       interface = @legacy_io, ordinal = 0 : i32,
-//       signature = (!flow.dispatch.input<?x?xf32>, !flow.dispatch.input<?x?xf32>,
-//         !flow.dispatch.output<?x?xf32>) -> ()}
+//       signature = (!flow.dispatch.tensor<readonly:?x?xf32>, !flow.dispatch.tensor<readonly:?x?xf32>,
+//         !flow.dispatch.tensor<writeonly:?x?xf32>) -> ()}
 //     module attributes {
 //       spv.target_env =
 //         #spv.target_env<#spv.vce<v1.3,
@@ -90,8 +90,8 @@ hal.executable @parallel_4D_static attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="vulkan*" {
     hal.executable.entry_point @parallel_4D_static attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<?x?xf32>, !flow.dispatch.input<?x?xf32>,
-        !flow.dispatch.output<?x?xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:?x?xf32>, !flow.dispatch.tensor<readonly:?x?xf32>,
+        !flow.dispatch.tensor<writeonly:?x?xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -169,8 +169,8 @@ hal.executable @scalar_add attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="vulkan*" {
     hal.executable.entry_point @scalar_add attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<f32>, !flow.dispatch.input<f32>,
-        !flow.dispatch.output<f32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:f32>, !flow.dispatch.tensor<readonly:f32>,
+        !flow.dispatch.tensor<writeonly:f32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3,
@@ -223,8 +223,8 @@ hal.executable @reduce_sum attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="vulkan*" {
     hal.executable.entry_point @reduce_sum attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<40x50x75xf32>, !flow.dispatch.input<f32>,
-        !flow.dispatch.output<40xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:40x50x75xf32>, !flow.dispatch.tensor<readonly:f32>,
+        !flow.dispatch.tensor<writeonly:40xf32>) -> ()}
     module {
       func @reduce_sum() {
         %arg0 = iree.placeholder for "interace buffer"
@@ -296,8 +296,8 @@ hal.executable @matmul attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="vulkan*" {
     hal.executable.entry_point @matmul attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<?x?xf32>, !flow.dispatch.input<?x?xf32>,
-        !flow.dispatch.output<?x?xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:?x?xf32>, !flow.dispatch.tensor<readonly:?x?xf32>,
+        !flow.dispatch.tensor<writeonly:?x?xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3, [Shader], [SPV_KHR_storage_buffer_storage_class]>,
@@ -378,8 +378,8 @@ hal.executable @conv_no_padding attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="vulkan*" {
     hal.executable.entry_point @conv_no_padding attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<?x?xf32>, !flow.dispatch.input<?x?xf32>,
-        !flow.dispatch.output<?x?xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:?x?xf32>, !flow.dispatch.tensor<readonly:?x?xf32>,
+        !flow.dispatch.tensor<writeonly:?x?xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3, [Shader], [SPV_KHR_storage_buffer_storage_class]>,
@@ -504,8 +504,8 @@ hal.executable @pooling_no_padding attributes {sym_visibility = "private"} {
   hal.executable.target @vulkan, filter="vulkan*" {
     hal.executable.entry_point @pooling_no_padding attributes {
       interface = @legacy_io, ordinal = 0 : i32,
-      signature = (!flow.dispatch.input<?x?xf32>, !flow.dispatch.input<?x?xf32>,
-        !flow.dispatch.output<?x?xf32>) -> ()}
+      signature = (!flow.dispatch.tensor<readonly:?x?xf32>, !flow.dispatch.tensor<readonly:?x?xf32>,
+        !flow.dispatch.tensor<writeonly:?x?xf32>) -> ()}
     module attributes {
       spv.target_env =
         #spv.target_env<#spv.vce<v1.3, [Shader], [SPV_KHR_storage_buffer_storage_class]>,
